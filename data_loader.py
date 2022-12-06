@@ -150,8 +150,7 @@ class DataEngine:
         for i in tqdm(range(len(self.stocks_list))):
             symbol = self.stocks_list[i]
             try:
-                stock_price_data, future_prices, not_found = self.get_data(
-                    symbol)
+                stock_price_data, future_prices, not_found = self.get_data(symbol)
                 if not not_found:
                     # Add to lists
                     symbol_names.append(symbol)

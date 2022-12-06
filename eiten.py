@@ -55,14 +55,19 @@ class Eiten:
             close_prices = list(historical_price_info[i]["Close"])
             log_returns = [math.log(close_prices[i] / close_prices[i - 1])
                            for i in range(1, len(close_prices))]
-            percentage_returns = [self.calculate_percentage_change(
-                close_prices[i - 1], close_prices[i]) for i in range(1, len(close_prices))]
+            percentage_returns = \
+                [self.calculate_percentage_change(close_prices[i - 1], close_prices[i])
+                 for i in range(1, len(close_prices))]
 
             total_data = len(close_prices)
 
-            # Expected returns in future. We can either use historical returns as future returns on try to simulate future returns and take the mean. For simulation, you can modify the functions in simulator to use here.
-            future_expected_returns = np.mean([(self.calculate_percentage_change(close_prices[i - 1], close_prices[i])) / (
-                total_data - i) for i in range(1, len(close_prices))])  # More focus on recent returns
+            # Expected returns in the future.
+            # We can either use historical returns as future returns
+            # or try to simulate future returns and take the mean.
+            # For simulation, you can modify the functions in simulator to use here.
+            xxx = [(self.calculate_percentage_change(close_prices[i - 1], close_prices[i])) / (total_data - i)
+                   for i in range(1, len(close_prices))]
+            future_expected_returns = np.mean(xxx)  # More focus on recent returns
 
             # Add to matrices
             returns_matrix.append(log_returns)
@@ -98,7 +103,12 @@ class Eiten:
         # Get return matrices and vectors
         predicted_return_vectors, returns_matrix, returns_matrix_percentages = self.create_returns(
             historical_price_info)
-        return historical_price_info, future_prices, symbol_names, predicted_return_vectors, returns_matrix, returns_matrix_percentages
+        return historical_price_info,\
+            future_prices,\
+            symbol_names,\
+            predicted_return_vectors,\
+            returns_matrix,\
+            returns_matrix_percentages
 
     def run_strategies(self):
         """
@@ -119,8 +129,7 @@ class Eiten:
         if self.args.apply_noise_filtering:
             print(
                 "\n** Applying random matrix theory to filter out noise in the covariance matrix...\n")
-            covariance_matrix = self.strategyManager.random_matrix_theory_based_cov(
-                returns_matrix)
+            covariance_matrix = self.strategyManager.random_matrix_theory_based_cov(returns_matrix)
 
         # Get weights for the portfolio
         eigen_portfolio_weights_dictionary = self.strategyManager.calculate_eigen_portfolio(
@@ -146,7 +155,8 @@ class Eiten:
 
         # Back test
         print("\n*& Backtesting the portfolios...")
-        self.backTester.back_test(symbol_names, eigen_portfolio_weights_dictionary,
+        self.backTester.back_test(symbol_names,
+                                  eigen_portfolio_weights_dictionary,
                                   self.data_dictionary,
                                   historical_price_market,
                                   self.args.only_long,
@@ -154,11 +164,13 @@ class Eiten:
                                   strategy_name='Eigen Portfolio')
         self.backTester.back_test(symbol_names,
                                   mvp_portfolio_weights_dictionary,
-                                  self.data_dictionary, historical_price_market,
+                                  self.data_dictionary,
+                                  historical_price_market,
                                   self.args.only_long,
                                   market_chart=False,
                                   strategy_name='Minimum Variance Portfolio (MVP)')
-        self.backTester.back_test(symbol_names, msr_portfolio_weights_dictionary,
+        self.backTester.back_test(symbol_names,
+                                  msr_portfolio_weights_dictionary,
                                   self.data_dictionary,
                                   historical_price_market,
                                   self.args.only_long,
