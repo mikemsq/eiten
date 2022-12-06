@@ -3,6 +3,7 @@ import os
 import collections
 import pandas as pd
 import yfinance as yf
+import yfinance_cache as yfc
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
@@ -54,8 +55,10 @@ class DataEngine:
         if self.args.data_granularity_minutes == 1:
             period = "7d"
             interval = str(self.args.data_granularity_minutes) + "m"
-        if self.args.data_granularity_minutes == 3600:
-            period = "5y"
+        elif self.args.data_granularity_minutes == 3600:
+            # period = "5y"
+            period = "10y"
+            # period = "max"
             interval = "1d"
         else:
             period = "30d"
@@ -64,17 +67,26 @@ class DataEngine:
         # Get stock price
         try:
             # Stock price
-            stock_prices = yf.download(
-                tickers=symbol,
-                period=period,
-                interval=interval,
-                auto_adjust=False,
-                progress=False)
+            if self.args.use_cache:
+                stock_prices = yfc.Ticker(symbol).history(
+                    period=period,
+                    interval=interval,
+                    adjust_splits=False,
+                    adjust_divs=False)
+                stock_prices = stock_prices[['Open', 'High', 'Low', 'Close', 'Volume']]
+            else:
+                stock_prices = yf.download(
+                    tickers=symbol,
+                    period=period,
+                    interval=interval,
+                    auto_adjust=False,
+                    progress=False)
+                try:
+                    stock_prices = stock_prices.drop(columns=["Adj Close"])
+                except Exception as e:
+                    print("Exception", e)
+
             stock_prices = stock_prices.reset_index()
-            try:
-                stock_prices = stock_prices.drop(columns=["Adj Close"])
-            except Exception as e:
-                print("Exception", e)
 
             data_length = stock_prices.shape[0]
             self.stock_data_length.append(data_length)
@@ -98,9 +110,11 @@ class DataEngine:
 
             if self.args.is_test == 1:
                 future_prices = stock_prices.iloc[-self.args.future_bars:]
+                future_prices = future_prices.values.tolist()
                 historical_prices = stock_prices.iloc[:-self.args.future_bars]
             else:
                 historical_prices = stock_prices
+                future_prices = []
 
             if stock_prices.shape[0] == 0:
                 return [], [], True
@@ -108,7 +122,7 @@ class DataEngine:
             print("Exception", e)
             return [], [], True
 
-        return historical_prices, future_prices.values.tolist(), False
+        return historical_prices, future_prices, False
 
     def get_market_index_price(self):
         """
@@ -178,3 +192,28 @@ class DataEngine:
                 filtered_future_prices.append(future_price[i])
 
         return filtered_historical_price, filtered_future_prices, filtered_symbols
+
+
+def test_data_loader():
+    import mock
+    args = mock.Mock()
+    args.stocks_file_path = 'stocks/stocks.txt'
+    args.data_granularity_minutes = 3600
+    args.history_to_use = 'all'
+    args.is_test = 0
+
+    data_engine = DataEngine(args)
+
+    args.use_cache = 1
+    data_MSFT_cached = data_engine.get_data('MSFT')
+
+    args.use_cache = 0
+    data_MSFT_raw = data_engine.get_data('MSFT')
+
+    print('Cache vs. No cache', '\n',
+          data_MSFT_cached[0].iloc[0], '\n', data_MSFT_raw[0].iloc[0], '\n',
+          data_MSFT_cached[0].iloc[100], '\n', data_MSFT_raw[0].iloc[100])
+
+
+if __name__ == '__main__':
+    test_data_loader()

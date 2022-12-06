@@ -104,7 +104,12 @@ class Eiten:
         """
         Run strategies, back and future test them, and simulate the returns.
         """
-        historical_price_info, future_prices, symbol_names, predicted_return_vectors, returns_matrix, returns_matrix_percentages = self.load_data()
+        historical_price_info, \
+            future_prices, \
+            symbol_names, \
+            predicted_return_vectors, \
+            returns_matrix, \
+            returns_matrix_percentages = self.load_data()
         historical_price_market, future_prices_market = self.dataEngine.get_market_index_price()
 
         # Calculate covariance matrix
@@ -202,36 +207,37 @@ class Eiten:
             self.draw_plot("output/future_tests.png")
 
         # Simulation
-        print("\n+$ Simulating future prices using monte carlo...")
-        self.simulator.simulate_portfolio(symbol_names,
-                                          eigen_portfolio_weights_dictionary,
-                                          self.data_dictionary,
-                                          future_prices_market,
-                                          self.args.is_test,
-                                          market_chart=True,
-                                          strategy_name='Eigen Portfolio')
-        self.simulator.simulate_portfolio(symbol_names,
-                                          eigen_portfolio_weights_dictionary,
-                                          self.data_dictionary,
-                                          future_prices_market,
-                                          self.args.is_test,
-                                          market_chart=False,
-                                          strategy_name='Minimum Variance Portfolio (MVP)')
-        self.simulator.simulate_portfolio(symbol_names,
-                                          eigen_portfolio_weights_dictionary,
-                                          self.data_dictionary,
-                                          future_prices_market,
-                                          self.args.is_test,
-                                          market_chart=False,
-                                          strategy_name='Maximum Sharpe Portfolio (MSR)')
-        self.simulator.simulate_portfolio(symbol_names,
-                                          ga_portfolio_weights_dictionary,
-                                          self.data_dictionary,
-                                          future_prices_market,
-                                          self.args.is_test,
-                                          market_chart=False,
-                                          strategy_name='Genetic Algo (GA)')
-        self.draw_plot("output/monte_carlo.png")
+        if False:
+            print("\n+$ Simulating future prices using monte carlo...")
+            self.simulator.simulate_portfolio(symbol_names,
+                                              eigen_portfolio_weights_dictionary,
+                                              self.data_dictionary,
+                                              future_prices_market,
+                                              self.args.is_test,
+                                              market_chart=True,
+                                              strategy_name='Eigen Portfolio')
+            self.simulator.simulate_portfolio(symbol_names,
+                                              eigen_portfolio_weights_dictionary,
+                                              self.data_dictionary,
+                                              future_prices_market,
+                                              self.args.is_test,
+                                              market_chart=False,
+                                              strategy_name='Minimum Variance Portfolio (MVP)')
+            self.simulator.simulate_portfolio(symbol_names,
+                                              eigen_portfolio_weights_dictionary,
+                                              self.data_dictionary,
+                                              future_prices_market,
+                                              self.args.is_test,
+                                              market_chart=False,
+                                              strategy_name='Maximum Sharpe Portfolio (MSR)')
+            self.simulator.simulate_portfolio(symbol_names,
+                                              ga_portfolio_weights_dictionary,
+                                              self.data_dictionary,
+                                              future_prices_market,
+                                              self.args.is_test,
+                                              market_chart=False,
+                                              strategy_name='Genetic Algo (GA)')
+            self.draw_plot("output/monte_carlo.png")
 
     def draw_plot(self, filename="output/graph.png"):
         """

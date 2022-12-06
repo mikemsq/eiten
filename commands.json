@@ -7,8 +7,8 @@
     {
         "comm": "--data_granularity_minutes",
         "type": "int",
-        "default": "15",
-        "help": "Minute level data granularity that you want to use. Default is 60 minute bars."
+        "default": "3600",
+        "help": "Minute level data granularity that you want to use. Default is 1 day bars."
     },
     {
         "comm": "--is_test",
@@ -17,9 +17,15 @@
         "help": "Whether to test the tool or just predict for future. When testing you should set the future_bars to larger than 1."
     },
     {
+        "comm": "--use_cache",
+        "type": "int",
+        "default": "1",
+        "help": "Whether to use cached YFinance data or request from the Web."
+    },
+    {
         "comm": "--future_bars",
         "type": "int",
-        "default": "30",
+        "default": "130",
         "help": "How many bars to keep for testing purposes."
     },
     {
@@ -43,7 +49,7 @@
     {
         "comm": "--eigen_portfolio_number",
         "type": "int",
-        "default": "2",
+        "default": "3",
         "help": "Which eigen portfolio to choose. By default the 2nd one is choosen as it gives the most risk and reward."
     },
     {
